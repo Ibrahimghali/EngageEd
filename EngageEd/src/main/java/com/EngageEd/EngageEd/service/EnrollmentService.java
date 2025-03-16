@@ -2,7 +2,7 @@ package com.EngageEd.EngageEd.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.EngageEd.EngageEd.dto.Enrollment;
@@ -12,7 +12,7 @@ import com.EngageEd.EngageEd.repository.EnrollmentRepo;
 public class EnrollmentService {
     private final EnrollmentRepo enrollmentRepository;
 
-    @Autowired
+    // @Autowired
     public EnrollmentService(EnrollmentRepo enrollmentRepository) {
         this.enrollmentRepository = enrollmentRepository;
     }

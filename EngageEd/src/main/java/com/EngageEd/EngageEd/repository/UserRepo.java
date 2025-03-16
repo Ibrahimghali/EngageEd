@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.EngageEd.EngageEd.dto.User;
+
 @Repository
-public interface UserRepo extends JpaRepository<UserRepo, Long> {
-    List <UserRepo> findByEmail(String email);
+public interface UserRepo extends JpaRepository<User, Long> {
+    List <User> findByEmail(String email);
 }

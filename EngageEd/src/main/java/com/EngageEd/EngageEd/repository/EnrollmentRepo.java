@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.EngageEd.EngageEd.dto.Enrollment;
 
 @Repository
-public interface EnrollmentRepo extends JpaRepository<EnrollmentRepo, Long> {
+public interface EnrollmentRepo extends JpaRepository<Enrollment, Long> {
     List<Enrollment> findByUserId(Long userId);
     List<Enrollment> findBySubjectId(Long subjectId);
     EnrollmentRepo findByUserIdAndSubjectId(Long userId, Long subjectId);

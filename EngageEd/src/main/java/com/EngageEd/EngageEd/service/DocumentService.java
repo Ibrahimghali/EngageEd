@@ -2,7 +2,7 @@ package com.EngageEd.EngageEd.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.EngageEd.EngageEd.dto.Document;
@@ -12,7 +12,7 @@ import com.EngageEd.EngageEd.repository.DocumentRepo;
 public class DocumentService {
     private final DocumentRepo documentRepository;
 
-    @Autowired
+    // @Autowired
     public DocumentService(DocumentRepo documentRepository) {
         this.documentRepository = documentRepository;
     }

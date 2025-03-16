@@ -9,6 +9,6 @@ import com.EngageEd.EngageEd.dto.Folder;
 
 
 @Repository
-public interface FolderRepo extends JpaRepository<FolderRepo, Long> {
+public interface FolderRepo extends JpaRepository<Folder, Long> {
     List<Folder> findBySubjectId(Long subjectId);
 }

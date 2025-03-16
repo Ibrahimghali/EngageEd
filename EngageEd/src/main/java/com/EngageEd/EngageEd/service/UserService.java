@@ -3,7 +3,7 @@ package com.EngageEd.EngageEd.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.EngageEd.EngageEd.dto.User;
@@ -13,7 +13,7 @@ import com.EngageEd.EngageEd.repository.UserRepo;
 public class UserService {
     private final UserRepo userRepository;
 
-    @Autowired
+    // @Autowired
     public UserService(UserRepo userRepository) {
         this.userRepository = userRepository;
     }
@@ -26,8 +26,8 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public UserService getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+    public List<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public User createUser(User user) {
