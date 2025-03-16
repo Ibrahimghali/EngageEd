@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: engadeEd_postgres
+    environment:
+      POSTGRES_DB: StudentDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - EngageEd_data:/var/lib/postgresql/data
+    networks:
+      - springboot_network
+
+volumes:
+  EngageEd_data:
+
+networks:
+  springboot_network:
+
+version: '3.8'
