@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.EngageEd.EngageEd.dto.User;
 import com.EngageEd.EngageEd.repository.UserRepo;
 
 @Service
@@ -17,11 +18,11 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<UserRepo> getAllUsers() {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public Optional<UserRepo> getUserById(Long id) {
+    public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
@@ -29,7 +30,7 @@ public class UserService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    public UserService createUser(UserService user) {
+    public User createUser(User user) {
         return userRepository.save(user);
     }
 }

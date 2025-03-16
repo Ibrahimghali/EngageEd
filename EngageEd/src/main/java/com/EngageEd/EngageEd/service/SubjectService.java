@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.EngageEd.EngageEd.dto.Subject;
 import com.EngageEd.EngageEd.repository.SubjectRepo;
 
 @Service
@@ -16,7 +17,7 @@ public class SubjectService {
         this.subjectRepository = subjectRepository;
     }
 
-    public List<SubjectRepo> getAllSubjects() {
+    public List<Subject> getAllSubjects() {
         return subjectRepository.findAll();
     }
 
@@ -24,7 +25,7 @@ public class SubjectService {
         return subjectRepository.findByCreatedBy(chiefId);
     }
 
-    public SubjectRepo createSubject(SubjectRepo subject) {
+    public Subject createSubject(Subject subject) {
         return subjectRepository.save(subject);
     }
 }
