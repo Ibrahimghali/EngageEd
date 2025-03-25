@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.EngageEd.EngageEd.dto.Enrollment;
-import com.EngageEd.EngageEd.service.EnrollmentService;
+import com.EngageEd.EngageEd.entity.Enrollment;
+import com.EngageEd.EngageEd.serviceImpl.EnrollmentService;
 
 @RestController
 @RequestMapping("/api/enrollments")

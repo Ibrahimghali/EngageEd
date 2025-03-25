@@ -1,4 +1,4 @@
-package com.EngageEd.EngageEd.dto;
+package com.EngageEd.EngageEd.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "Subject")
-public class Subject {
+@Table(name = "Folder")
+public class Folder {
 
     @Id
     private Long id;
     private String name;
-    private String code;
-    private Long createdBy;
+    private String description;
+    private Long subjectId;
 
 }

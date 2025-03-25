@@ -1,4 +1,4 @@
-package com.EngageEd.EngageEd.dto;
+package com.EngageEd.EngageEd.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

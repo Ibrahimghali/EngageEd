@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.EngageEd.EngageEd.dto.Document;
-import com.EngageEd.EngageEd.service.DocumentService;
+import com.EngageEd.EngageEd.entity.Document;
+import com.EngageEd.EngageEd.serviceImpl.DocumentService;
 
 @RestController
 @RequestMapping("/api/documents")

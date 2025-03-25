@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.EngageEd.EngageEd.dto.User;
-import com.EngageEd.EngageEd.service.UserService;
+import com.EngageEd.EngageEd.entity.User;
+import com.EngageEd.EngageEd.serviceImpl.UserService;
 
 @RestController
 @RequestMapping("/api/users")
