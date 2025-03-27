@@ -2,6 +2,7 @@ package com.EngageEd.EngageEd.serviceImpl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 // import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Long id) {
+    public Optional<User> getUserById(UUID id) {
         return userRepository.findById(id);
     }
 

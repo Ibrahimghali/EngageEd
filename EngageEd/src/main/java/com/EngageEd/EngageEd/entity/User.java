@@ -1,24 +1,40 @@
 package com.EngageEd.EngageEd.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.io.Serializable;
+import java.util.UUID;
 
-@Entity
-@AllArgsConstructor
+
 @Data
 @NoArgsConstructor
-@Table(name = "User")
-public class User {
-    
-    @Id
-    private Long id;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String role;
+@AllArgsConstructor
+@Entity
+@Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)  // Using JOINED strategy
+public abstract class User implements Serializable{
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    protected UUID id;
+
+    @Column(nullable = false, length = 50)
+    protected String firstName;
+
+    @Column(nullable = false, length = 50)
+    protected String lastName;
+
+    @Column(nullable = false, unique = true, length = 100)
+    protected String email;
+
+    @Column(nullable = false)
+    protected String password;  // Store hashed password
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    protected Role role;
+
+    
 }
