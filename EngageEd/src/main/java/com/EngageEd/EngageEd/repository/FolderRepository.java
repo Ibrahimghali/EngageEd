@@ -5,9 +5,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.EngageEd.EngageEd.entity.Subject;
+import com.EngageEd.EngageEd.model.Folder;
+
 
 @Repository
-public interface SubjectRepo extends JpaRepository<Subject, Long> {
-    List<SubjectRepo> findByCreatedBy(Long departmentChiefId);
+public interface FolderRepository extends JpaRepository<Folder, Long> {
+    List<Folder> findBySubjectId(Long subjectId);
 }

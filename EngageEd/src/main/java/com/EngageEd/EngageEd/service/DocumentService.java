@@ -1,27 +1,15 @@
 package com.EngageEd.EngageEd.service;
 
-import com.EngageEd.EngageEd.entity.Document;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import com.EngageEd.EngageEd.model.Document;
+
 public interface DocumentService {
-
-    // here are list of all methode that we will use in our project
-    // we will implement these methodes in our DocumentServiceImpl class
-    // we will use these methodes in our DocumentController class
-    // we will use these methodes in our DocumentRepository class
-    
-    // methode to save a document
-    public void saveDocument(Document document);
-    // methode to get a document by id
-    public Document getDocumentById(int id);
-    // methode to get all documents
-    public List<Document> getAllDocuments();
-    // methode to delete a document
-    public void deleteDocument(int id);
-    // methode to get all documents by folder
-    public List<Document> getDocumentsByFolder(int folderId);
-    // methode to get all documents by user
-    public List<Document> getDocumentsByUser(int userId);
-    
-
+    Document uploadDocument(String title, String description, String type, MultipartFile file, Long professorId, Long folderId);
+    Document renameDocument(Long documentId, String newTitle);
+    byte[] downloadDocument(Long documentId);
+    void deleteDocument(Long documentId);
+    List<Document> getAllDocumentsByFolder(Long folderId);
 }

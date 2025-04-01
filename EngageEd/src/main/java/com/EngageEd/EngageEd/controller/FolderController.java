@@ -1,35 +1,46 @@
 package com.EngageEd.EngageEd.controller;
 
+import com.EngageEd.EngageEd.model.Folder;
+import com.EngageEd.EngageEd.service.FolderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.EngageEd.EngageEd.entity.Folder;
-import com.EngageEd.EngageEd.serviceImpl.FolderService;
-
 @RestController
-@RequestMapping("/api/folders")
+@RequestMapping("/folders")
 public class FolderController {
 
     private final FolderService folderService;
 
-    // @Autowired
+    @Autowired
     public FolderController(FolderService folderService) {
         this.folderService = folderService;
     }
 
-    @GetMapping("/subject/{subjectId}")
-    public List<Folder> getFoldersBySubject(@PathVariable Long subjectId) {
-        return folderService.getFoldersBySubject(subjectId);
+    @PostMapping("/create")
+    public ResponseEntity<Folder> createFolder(@RequestParam String name, @RequestParam Long departmentChiefId) {
+        Folder folder = folderService.createFolder(name, departmentChiefId);
+        return ResponseEntity.ok(folder);
     }
 
-    @PostMapping
-    public Folder createFolder(@RequestBody Folder folder) {
-        return folderService.createFolder(folder);
+    @PutMapping("/{folderId}/rename")
+    public ResponseEntity<Folder> renameFolder(@PathVariable Long folderId, @RequestParam String newName) {
+        Folder folder = folderService.renameFolder(folderId, newName);
+        return ResponseEntity.ok(folder);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Folder>> getAllFolders() {
+        List<Folder> folders = folderService.getAllFolders();
+        return ResponseEntity.ok(folders);
+    }
+
+    @DeleteMapping("/{folderId}")
+    public ResponseEntity<String> deleteFolder(@PathVariable Long folderId) {
+        folderService.deleteFolder(folderId);
+        return ResponseEntity.ok("Folder deleted successfully.");
     }
 }
+

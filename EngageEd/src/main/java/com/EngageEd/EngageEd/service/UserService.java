@@ -1,5 +1,10 @@
 package com.EngageEd.EngageEd.service;
 
-public interface UserService {
+import java.util.List;
 
+public interface UserService<T> {
+    T save(T user);
+    T findById(Long id);
+    List<T> findAll();
+    void deleteById(Long id);
 }
