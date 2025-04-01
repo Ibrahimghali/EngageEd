@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/folders")
+@RequestMapping("/api/folders")
 public class FolderController {
 
     private final FolderService folderService;
@@ -19,28 +19,31 @@ public class FolderController {
         this.folderService = folderService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Folder> createFolder(@RequestParam String name, @RequestParam Long departmentChiefId) {
+    @PostMapping
+    public ResponseEntity<Folder> createFolder(
+            @RequestParam String name,
+            @RequestParam Long departmentChiefId) {
         Folder folder = folderService.createFolder(name, departmentChiefId);
         return ResponseEntity.ok(folder);
     }
 
-    @PutMapping("/{folderId}/rename")
-    public ResponseEntity<Folder> renameFolder(@PathVariable Long folderId, @RequestParam String newName) {
-        Folder folder = folderService.renameFolder(folderId, newName);
-        return ResponseEntity.ok(folder);
-    }
-
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<Folder>> getAllFolders() {
         List<Folder> folders = folderService.getAllFolders();
         return ResponseEntity.ok(folders);
     }
 
+    @PutMapping("/{folderId}/rename")
+    public ResponseEntity<Folder> renameFolder(
+            @PathVariable Long folderId,
+            @RequestParam String newName) {
+        Folder folder = folderService.renameFolder(folderId, newName);
+        return ResponseEntity.ok(folder);
+    }
+
     @DeleteMapping("/{folderId}")
-    public ResponseEntity<String> deleteFolder(@PathVariable Long folderId) {
+    public ResponseEntity<Void> deleteFolder(@PathVariable Long folderId) {
         folderService.deleteFolder(folderId);
-        return ResponseEntity.ok("Folder deleted successfully.");
+        return ResponseEntity.noContent().build();
     }
 }
-

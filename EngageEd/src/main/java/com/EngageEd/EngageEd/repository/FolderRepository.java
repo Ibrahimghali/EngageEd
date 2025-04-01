@@ -10,5 +10,5 @@ import com.EngageEd.EngageEd.model.Folder;
 
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Long> {
-    List<Folder> findBySubjectId(Long subjectId);
+    List<Folder> findByCreatedById(Long departmentChiefId);
 }

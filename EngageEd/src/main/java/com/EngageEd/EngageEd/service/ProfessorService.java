@@ -1,10 +1,12 @@
 package com.EngageEd.EngageEd.service;
 
-import com.EngageEd.EngageEd.model.Professor;
+import java.util.List;
 
-public interface ProfessorService extends UserService<Professor> {
-    // Extra methods (if needed)
+import com.EngageEd.EngageEd.model.*;
+
+public interface ProfessorService {
+    Professor getProfessorById(Long id);
+    List<Document> getProfessorDocuments(Long professorId);
+    void deleteProfessorDocument(Long professorId, Long documentId);
 }
-
-
 

@@ -16,6 +16,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     List<Document> findByType(String type);
     List<Document> findDocumentsById(Long id);
     List<Document> findByFolderId(Long folderId);
+    List<Document> findByUploadedById(Long professorId);
 
 
 }

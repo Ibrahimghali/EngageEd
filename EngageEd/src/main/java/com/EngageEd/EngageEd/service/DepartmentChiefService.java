@@ -1,7 +1,13 @@
 package com.EngageEd.EngageEd.service;
 
-import com.EngageEd.EngageEd.model.DepartmentChief;
 
-public interface DepartmentChiefService extends UserService<DepartmentChief> {
-    void createFolder(String folderName);
+import java.util.List;
+
+import com.EngageEd.EngageEd.model.DepartmentChief;
+import com.EngageEd.EngageEd.model.Folder;
+
+public interface DepartmentChiefService {
+    DepartmentChief getDepartmentChiefById(Long id);
+    List<Folder> getFoldersCreatedBy(Long departmentChiefId);
+    void deleteFolder(Long departmentChiefId, Long folderId);
 }
