@@ -1,6 +1,7 @@
 package com.EngageEd.EngageEd.model;
 
-
+import java.net.URI;
+import java.util.Date;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,5 +44,10 @@ public class Document {
     @ManyToOne
     @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
+
+    @Column(nullable = false)
+    private Date uploadedAt;
+
+
 }
 

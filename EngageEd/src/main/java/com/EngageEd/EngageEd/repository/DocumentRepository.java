@@ -8,8 +8,6 @@ import com.EngageEd.EngageEd.model.Document;
 
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Long> {
-    // Custom query methods can be defined here if needed
-    // For example, you can add methods to find documents by specific attributes
     
     List<Document> findByTitle(String title);
     List<Document> findByDescription(String description);
