@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.EngageEd.EngageEd.dto.document.DocumentRequestDTO;
+import com.EngageEd.EngageEd.dto.document.DocumentResponseDTO;
+import com.EngageEd.EngageEd.dto.mapper.DocumentMapper;
 import com.EngageEd.EngageEd.model.Document;
 import com.EngageEd.EngageEd.model.Folder;
 import com.EngageEd.EngageEd.model.Professor;
@@ -21,15 +25,14 @@ import com.EngageEd.EngageEd.service.DocumentService;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
-
-    private final DocumentRepository documentRepository;
-    private final ProfessorRepository professorRepository;
-    private final FolderRepository folderRepository;
     
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    @Autowired
+    private final DocumentRepository documentRepository;
+    private final ProfessorRepository professorRepository;
+    private final FolderRepository folderRepository;
+
     public DocumentServiceImpl(DocumentRepository documentRepository, 
                               ProfessorRepository professorRepository, 
                               FolderRepository folderRepository) {
@@ -39,8 +42,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public Document uploadDocument(String title, String description, String type, 
-                                 MultipartFile file, Long professorId, Long folderId) {
+    public DocumentResponseDTO uploadDocument(DocumentRequestDTO dto, MultipartFile file, Long professorId) {
         if (file.isEmpty()) {
             throw new RuntimeException("File is empty. Please upload a valid document.");
         }
@@ -48,11 +50,11 @@ public class DocumentServiceImpl implements DocumentService {
         try {
             Professor professor = professorRepository.findById(professorId)
                     .orElseThrow(() -> new RuntimeException("Professor not found with ID: " + professorId));
-            Folder folder = folderRepository.findById(folderId)
-                    .orElseThrow(() -> new RuntimeException("Folder not found with ID: " + folderId));
+            Folder folder = folderRepository.findById(dto.getFolderId())
+                    .orElseThrow(() -> new RuntimeException("Folder not found with ID: " + dto.getFolderId()));
 
             // Ensure upload directory exists
-            Path uploadPath = Path.of(uploadDir);  // Use the injected uploadDir
+            Path uploadPath = Path.of(uploadDir);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
@@ -62,29 +64,56 @@ public class DocumentServiceImpl implements DocumentService {
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Save document metadata
+            // Create document entity
             Document document = new Document();
-            document.setTitle(title);
-            document.setDescription(description);
-            document.setType(type);
+            document.setTitle(dto.getTitle());
+            document.setDescription(dto.getDescription());
+            document.setType(dto.getType());
             document.setFilePath(filePath.toString());
             document.setUploadedBy(professor);
             document.setFolder(folder);
+            document.setUploadedAt(new Date());
 
-            return documentRepository.save(document);
+            Document savedDocument = documentRepository.save(document);
+            return DocumentMapper.toDTO(savedDocument);
         } catch (IOException e) {
-            throw new RuntimeException("Could not store file: " + file.getOriginalFilename() + 
-                                     ". Error: " + e.getMessage());
+            throw new RuntimeException("Could not store file. Error: " + e.getMessage());
         }
     }
 
+    // Keep old method for backward compatibility
     @Override
-    public Document renameDocument(Long documentId, String newTitle) {
+    public Document uploadDocument(String title, String description, String type, 
+                                 MultipartFile file, Long professorId, Long folderId) {
+        DocumentRequestDTO dto = new DocumentRequestDTO();
+        dto.setTitle(title);
+        dto.setDescription(description);
+        dto.setType(type);
+        dto.setFolderId(folderId);
+        
+        // Set a temporary path - it will be overwritten in the method
+        dto.setFilePath("temp");
+        
+        DocumentResponseDTO responseDTO = uploadDocument(dto, file, professorId);
+        return documentRepository.findById(responseDTO.getId())
+            .orElseThrow(() -> new RuntimeException("Error retrieving saved document"));
+    }
+
+    @Override
+    public DocumentResponseDTO renameDocument(Long documentId, String newTitle) {
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new RuntimeException("Document not found with ID: " + documentId));
 
         document.setTitle(newTitle);
-        return documentRepository.save(document);
+        Document savedDocument = documentRepository.save(document);
+        return DocumentMapper.toDTO(savedDocument);
+    }
+
+    @Override
+    public DocumentResponseDTO findById(Long documentId) {
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new RuntimeException("Document not found with ID: " + documentId));
+        return DocumentMapper.toDTO(document);
     }
 
     @Override
@@ -118,7 +147,10 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<Document> getAllDocumentsByFolder(Long folderId) {
-        return documentRepository.findByFolderId(folderId);
+    public List<DocumentResponseDTO> getAllDocumentsByFolder(Long folderId) {
+        List<Document> documents = documentRepository.findByFolderId(folderId);
+        return documents.stream()
+                .map(DocumentMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }
