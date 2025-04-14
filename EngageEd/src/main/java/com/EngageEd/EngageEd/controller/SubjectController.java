@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,16 +39,17 @@ public class SubjectController {
     
     @PostMapping
     public ResponseEntity<ApiResponse<SubjectDTOs.SubjectResponse>> createSubject(
-            @Valid @RequestBody SubjectDTOs.SubjectCreationRequest request,
-            @RequestParam UUID professorId) {
-        log.info("Create subject request received: {} by professor ID: {}", 
-                request.getName(), professorId);
+            @RequestBody SubjectDTOs.SubjectCreationRequest request,
+            Authentication authentication) {
         
-        Professor professor = professorService.getProfessorEntityById(professorId);
-        Subject subject = subjectService.createSubject(request, professor);
-        SubjectDTOs.SubjectResponse response = subjectService.getSubjectById(subject.getId());
+        // Get the authenticated user
+        String email = authentication.getName();
+        Professor professor = professorService.findProfessorEntityByEmail(email);
         
-        return new ResponseEntity<>(ApiResponse.success("Subject created successfully", response), HttpStatus.CREATED);
+        // Let the service handle the conversion
+        SubjectDTOs.SubjectResponse response = subjectService.createAndReturnSubject(request, professor);
+        
+        return ResponseEntity.ok(ApiResponse.success("Subject created successfully", response));
     }
     
     @GetMapping("/{id}")

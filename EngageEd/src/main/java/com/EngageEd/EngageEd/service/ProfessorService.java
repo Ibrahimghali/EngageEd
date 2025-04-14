@@ -3,6 +3,8 @@ package com.EngageEd.EngageEd.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.dto.ProfessorDTOs;
 import com.EngageEd.EngageEd.model.DepartmentChief;
@@ -120,4 +122,21 @@ public interface ProfessorService {
      * @return The created professor entity
      */
     Professor createProfessor(ProfessorDTOs.ProfessorRegistrationRequest request);
+
+    /**
+     * Find a professor by email
+     * 
+     * @param email The professor's email
+     * @return The professor entity
+     */
+    @Transactional(readOnly = true)
+    Professor findProfessorByEmail(String email);
+
+    /**
+     * Retrieves a Professor entity by email
+     * @param email The email of the professor to retrieve
+     * @return Professor entity
+     * @throws ResourceNotFoundException if professor not found
+     */
+    Professor findProfessorEntityByEmail(String email);
 }

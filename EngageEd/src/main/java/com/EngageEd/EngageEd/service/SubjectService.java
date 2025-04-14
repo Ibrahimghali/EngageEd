@@ -23,6 +23,15 @@ public interface SubjectService {
     Subject createSubject(SubjectDTOs.SubjectCreationRequest request, Professor professor);
     
     /**
+     * Creates a new subject and returns it as a response DTO
+     * 
+     * @param request the subject creation request
+     * @param professor the professor creating the subject
+     * @return the created subject as a response DTO
+     */
+    SubjectDTOs.SubjectResponse createAndReturnSubject(SubjectDTOs.SubjectCreationRequest request, Professor professor);
+    
+    /**
      * Get a subject by ID
      * 
      * @param id The subject UUID

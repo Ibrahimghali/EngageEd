@@ -236,4 +236,23 @@ public class SubjectServiceImpl implements SubjectService {
                 .materialsCount(materialsCount)
                 .build();
     }
+
+    @Override
+    @Transactional
+    public SubjectDTOs.SubjectResponse createAndReturnSubject(SubjectDTOs.SubjectCreationRequest request, Professor professor) {
+        log.info("Creating subject: {} by professor: {}", request.getName(), professor.getEmail());
+        
+        // Create and save the subject entity
+        Subject subject = Subject.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .creator(professor)  // Changed from professor to creator
+                .active(true)
+                .build();
+        
+        Subject savedSubject = subjectRepository.save(subject);
+        
+        // Map to response DTO and return
+        return toSubjectResponse(savedSubject);  // Changed from mapToSubjectResponse to toSubjectResponse
+    }
 }

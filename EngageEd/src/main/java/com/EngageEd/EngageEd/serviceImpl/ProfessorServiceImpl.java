@@ -268,6 +268,23 @@ public class ProfessorServiceImpl implements ProfessorService {
         
         professorRepository.delete(professor);
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Professor findProfessorByEmail(String email) {
+        log.info("Finding professor entity with email: {}", email);
+        return professorRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Professor not found with email: " + email));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Professor findProfessorEntityByEmail(String email) {
+        log.info("Finding professor entity with email: {}", email);
+        return professorRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Professor not found with email: " + email));
+    }
+
     private ProfessorDTOs.ProfessorResponse toProfessorResponse(Professor professor) {
         long subjectsCount = subjectRepository.countByCreator(professor);
         
