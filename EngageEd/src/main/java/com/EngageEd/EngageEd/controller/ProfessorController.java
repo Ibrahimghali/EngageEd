@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,11 +49,13 @@ public class ProfessorController {
     @PostMapping("/invite")
     public ResponseEntity<ApiResponse<ProfessorDTOs.ProfessorResponse>> inviteProfessor(
             @Valid @RequestBody ProfessorDTOs.ProfessorInviteRequest request,
-            @RequestParam UUID departmentChiefId) {
-        log.info("Invite professor request received: {} by department chief ID: {}", 
-                request.getEmail(), departmentChiefId);
+            Authentication authentication) {
+        log.info("Invite professor request received: {}", request.getEmail());
         
-        DepartmentChief departmentChief = departmentChiefService.getDepartmentChiefEntityById(departmentChiefId);
+        // Get authenticated department chief
+        String email = authentication.getName();
+        DepartmentChief departmentChief = departmentChiefService.findDepartmentChiefEntityByEmail(email);
+        
         ProfessorDTOs.ProfessorResponse response = professorService.inviteProfessor(request, departmentChief);
         
         return new ResponseEntity<>(ApiResponse.success("Professor invited successfully", response), HttpStatus.CREATED);

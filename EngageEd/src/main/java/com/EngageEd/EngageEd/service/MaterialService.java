@@ -111,4 +111,14 @@ public interface MaterialService {
      * @param professor The professor performing the deletion
      */
     void deleteMaterial(UUID id, Professor professor);
+
+    /**
+     * Creates a new material for a subject
+     * 
+     * @param request the material creation request
+     * @param subjectId the ID of the subject to add the material to
+     * @param professor the professor creating the material
+     * @return the created material as a response DTO
+     */
+    MaterialDTOs.MaterialResponse createMaterial(MaterialDTOs.MaterialCreationRequest request, UUID subjectId, Professor professor);
 }

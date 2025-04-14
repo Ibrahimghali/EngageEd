@@ -22,6 +22,7 @@ import com.EngageEd.EngageEd.model.MaterialType;
 import com.EngageEd.EngageEd.model.Professor;
 import com.EngageEd.EngageEd.model.Subject;
 import com.EngageEd.EngageEd.repository.MaterialRepository;
+import com.EngageEd.EngageEd.repository.SubjectRepository; // Add this line
 import com.EngageEd.EngageEd.service.FileStorageService;
 import com.EngageEd.EngageEd.service.MaterialService;
 import com.EngageEd.EngageEd.service.SubjectService;
@@ -35,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
+    private final SubjectRepository subjectRepository; // Add this line
     private final SubjectService subjectService;
     private final FileStorageService fileStorageService;
     
@@ -82,6 +84,55 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
+    @Transactional
+    public MaterialDTOs.MaterialResponse createMaterial(MaterialDTOs.MaterialCreationRequest request, UUID subjectId, Professor professor) {
+        log.info("Creating material for subject: {} by professor: {}", subjectId, professor.getEmail());
+        
+        // Find the subject
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Subject not found with ID: " + subjectId));
+        
+        // Verify professor has access to this subject
+        if (!subject.getCreator().getId().equals(professor.getId())) {
+            throw new AccessDeniedException("You do not have permission to add materials to this subject");
+        }
+        
+        // Create and save the material - USE CORRECT FIELD NAMES
+        Material material = Material.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .fileUrl(request.getContentUrl())  // Changed from contentUrl to fileUrl
+                .type(MaterialType.valueOf(request.getMaterialType()))  // Changed from materialType to type
+                .fileName(extractFileName(request.getContentUrl()))
+                .subject(subject)
+                // Note: No createdBy field in entity, so removed
+                .uploadedAt(LocalDateTime.now())  // Added uploadedAt field
+                .build();
+        
+        Material savedMaterial = materialRepository.save(material);
+        
+        // Convert to response DTO - USE CORRECT GETTER METHODS
+        return MaterialDTOs.MaterialResponse.builder()
+                .id(savedMaterial.getId())
+                .title(savedMaterial.getTitle())
+                .description(savedMaterial.getDescription())
+                .fileUrl(savedMaterial.getFileUrl())  // Changed from contentUrl to fileUrl
+                .type(savedMaterial.getType())  // Changed from materialType to type
+                .fileName(savedMaterial.getFileName())
+                .subjectId(subject.getId())
+                .subjectName(subject.getName())
+                .uploadedAt(savedMaterial.getUploadedAt())  // Changed from createdAt to uploadedAt
+                .build();
+    }
+
+    // Helper method to extract filename from URL
+    private String extractFileName(String url) {
+        if (url == null) return "unknown";
+        String[] parts = url.split("/");
+        return parts.length > 0 ? parts[parts.length - 1] : "file";
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public MaterialDTOs.MaterialResponse getMaterialById(UUID id) {
         log.info("Fetching material with ID: {}", id);
@@ -93,17 +144,6 @@ public class MaterialServiceImpl implements MaterialService {
     public Material getMaterialEntityById(UUID id) {
         return materialRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Material not found with ID: " + id));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<MaterialDTOs.MaterialResponse> getMaterialsBySubject(UUID subjectId) {
-        log.info("Fetching materials for subject ID: {}", subjectId);
-        Subject subject = subjectService.getSubjectEntityById(subjectId);
-        
-        return materialRepository.findBySubjectOrderByUploadedAtDesc(subject).stream()
-                .map(this::toMaterialResponse)
-                .collect(Collectors.toList());
     }
     
     @Override
@@ -259,5 +299,22 @@ public class MaterialServiceImpl implements MaterialService {
                 .subjectName(material.getSubject().getName())
                 .uploadedAt(material.getUploadedAt())
                 .build();
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<MaterialDTOs.MaterialResponse> getMaterialsBySubject(UUID subjectId) {
+        log.info("Fetching materials for subject: {}", subjectId);
+        
+        // Verify subject exists
+        if (!subjectRepository.existsById(subjectId)) {
+            throw new ResourceNotFoundException("Subject not found with ID: " + subjectId);
+        }
+        
+        List<Material> materials = materialRepository.findBySubjectId(subjectId);
+        
+        return materials.stream()
+                .map(this::toMaterialResponse)
+                .collect(Collectors.toList());
     }
 }

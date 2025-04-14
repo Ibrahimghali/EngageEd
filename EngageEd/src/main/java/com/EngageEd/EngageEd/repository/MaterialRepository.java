@@ -27,6 +27,8 @@ public interface MaterialRepository extends JpaRepository<Material, UUID>, JpaSp
     // Added missing method to count all materials for a subject
     long countBySubject(Subject subject);
 
+    List<Material> findBySubjectId(UUID subjectId);
+
     
 
 }

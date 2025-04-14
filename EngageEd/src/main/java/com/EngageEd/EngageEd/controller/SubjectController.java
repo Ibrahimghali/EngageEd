@@ -3,7 +3,6 @@ package com.EngageEd.EngageEd.controller;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,10 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.EngageEd.EngageEd.dto.ApiResponse;
+import com.EngageEd.EngageEd.dto.MaterialDTOs;
 import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.dto.SubjectDTOs;
 import com.EngageEd.EngageEd.model.Professor;
-import com.EngageEd.EngageEd.model.Subject;
+import com.EngageEd.EngageEd.service.MaterialService;
 import com.EngageEd.EngageEd.service.ProfessorService;
 import com.EngageEd.EngageEd.service.SubjectService;
 
@@ -36,6 +36,7 @@ public class SubjectController {
 
     private final SubjectService subjectService;
     private final ProfessorService professorService;
+    private final MaterialService materialService; // Add this line
     
     @PostMapping
     public ResponseEntity<ApiResponse<SubjectDTOs.SubjectResponse>> createSubject(
@@ -126,10 +127,15 @@ public class SubjectController {
     public ResponseEntity<ApiResponse<SubjectDTOs.SubjectResponse>> updateSubject(
             @PathVariable UUID id,
             @Valid @RequestBody SubjectDTOs.SubjectUpdateRequest request,
-            @RequestParam UUID professorId) {
-        log.info("Update subject request received for ID: {} by professor ID: {}", id, professorId);
+            Authentication authentication) {  // Changed from @RequestParam UUID professorId
         
-        Professor professor = professorService.getProfessorEntityById(professorId);
+        log.info("Update subject request received for ID: {}", id);
+        
+        // Get the authenticated user
+        String email = authentication.getName();
+        Professor professor = professorService.findProfessorEntityByEmail(email);
+        
+        // Update the subject
         SubjectDTOs.SubjectResponse response = subjectService.updateSubject(id, request, professor);
         
         return ResponseEntity.ok(ApiResponse.success("Subject updated successfully", response));
@@ -138,10 +144,14 @@ public class SubjectController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteSubject(
             @PathVariable UUID id,
-            @RequestParam UUID professorId) {
-        log.info("Delete subject request received for ID: {} by professor ID: {}", id, professorId);
+            Authentication authentication) {  // Changed from @RequestParam UUID professorId
         
-        Professor professor = professorService.getProfessorEntityById(professorId);
+        log.info("Delete subject request received for ID: {}", id);
+        
+        // Get the authenticated user
+        String email = authentication.getName();
+        Professor professor = professorService.findProfessorEntityByEmail(email);
+        
         subjectService.deleteSubject(id, professor);
         
         return ResponseEntity.ok(ApiResponse.success("Subject deleted successfully"));
@@ -154,5 +164,34 @@ public class SubjectController {
         String subjectCode = subjectService.generateUniqueSubjectCode();
         
         return ResponseEntity.ok(ApiResponse.success("Subject code generated successfully", subjectCode));
+    }
+    
+    @PostMapping("/{id}/materials")
+    public ResponseEntity<ApiResponse<MaterialDTOs.MaterialResponse>> addMaterialToSubject(
+            @PathVariable UUID id,
+            @Valid @RequestBody MaterialDTOs.MaterialCreationRequest request,
+            Authentication authentication) {
+        
+        log.info("Add material to subject request received for subject ID: {}", id);
+        
+        // Get the authenticated user
+        String email = authentication.getName();
+        Professor professor = professorService.findProfessorEntityByEmail(email);
+        
+        // Create material
+        MaterialDTOs.MaterialResponse response = materialService.createMaterial(request, id, professor);
+        
+        return ResponseEntity.ok(ApiResponse.success("Material added successfully", response));
+    }
+    
+    @GetMapping("/{id}/materials")
+    public ResponseEntity<ApiResponse<List<MaterialDTOs.MaterialResponse>>> getMaterialsForSubject(
+            @PathVariable UUID id) {
+        
+        log.info("Get materials for subject request received for subject ID: {}", id);
+        
+        List<MaterialDTOs.MaterialResponse> materials = materialService.getMaterialsBySubject(id);
+        
+        return ResponseEntity.ok(ApiResponse.success("Materials retrieved successfully", materials));
     }
 }

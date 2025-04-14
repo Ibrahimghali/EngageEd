@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,8 +37,14 @@ public class DepartmentChiefController {
     
     @PostMapping
     public ResponseEntity<ApiResponse<DepartmentChiefDTOs.DepartmentChiefResponse>> createDepartmentChief(
-            @Valid @RequestBody DepartmentChiefDTOs.DepartmentChiefRegistrationRequest request) {
+            @Valid @RequestBody DepartmentChiefDTOs.DepartmentChiefRegistrationRequest request,
+            Authentication authentication) {  // Add authentication
         log.info("Create department chief request received: {}", request.getEmail());
+        
+        // Check if user has ADMIN role
+        if (!hasAdminRole(authentication)) {
+            throw new AccessDeniedException("Only administrators can create department chiefs");
+        }
         
         DepartmentChief departmentChief = departmentChiefService.createDepartmentChief(request);
         DepartmentChiefDTOs.DepartmentChiefResponse response = departmentChiefService.getDepartmentChiefById(departmentChief.getId());
@@ -95,5 +103,10 @@ public class DepartmentChiefController {
         departmentChiefService.deleteDepartmentChief(id);
         
         return ResponseEntity.ok(ApiResponse.success("Department chief deleted successfully"));
+    }
+    
+    private boolean hasAdminRole(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
     }
 }

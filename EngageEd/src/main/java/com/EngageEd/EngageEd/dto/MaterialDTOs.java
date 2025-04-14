@@ -61,6 +61,8 @@ public class MaterialDTOs {
         private UUID subjectId;
         private String subjectName;
         private LocalDateTime uploadedAt;
+        private String createdBy;
+        private String createdAt;
     }
     
     /**
@@ -78,5 +80,27 @@ public class MaterialDTOs {
         private String description;
         
         private MaterialType type;
+    }
+
+    /**
+     * Request for creating a new material
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MaterialCreationRequest {
+        @NotBlank(message = "Title is required")
+        private String title;
+        
+        private String description;
+        
+        @NotBlank(message = "Content or file URL is required")
+        private String contentUrl;
+        
+        private String materialType;
+        
+        @NotNull(message = "Subject ID is required")
+        private UUID subjectId;
     }
 }

@@ -144,6 +144,14 @@ public class DepartmentChiefServiceImpl implements DepartmentChiefService {
         departmentChiefRepository.delete(departmentChief);
     }
     
+    @Override
+    @Transactional(readOnly = true)
+    public DepartmentChief findDepartmentChiefEntityByEmail(String email) {
+        log.info("Finding department chief entity with email: {}", email);
+        return departmentChiefRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Department chief not found with email: " + email));
+    }
+
     private DepartmentChiefDTOs.DepartmentChiefResponse toDepartmentChiefResponse(DepartmentChief departmentChief) {
         long managedProfessorsCount = professorRepository.countByRegisteredBy(departmentChief);
         

@@ -45,6 +45,15 @@ public interface DepartmentChiefService {
     DepartmentChiefDTOs.DepartmentChiefResponse getDepartmentChiefByEmail(String email);
     
     /**
+     * Finds a department chief entity by email
+     * 
+     * @param email the email of the department chief
+     * @return the department chief entity
+     * @throws ResourceNotFoundException if no department chief is found with the given email
+     */
+    DepartmentChief findDepartmentChiefEntityByEmail(String email);
+    
+    /**
      * Get a department chief by Firebase UID
      * 
      * @param firebaseUid The Firebase UID

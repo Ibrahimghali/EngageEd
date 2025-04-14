@@ -6,11 +6,13 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -136,13 +138,34 @@ public class MaterialController {
         return ResponseEntity.ok(ApiResponse.success("Material file replaced successfully", response));
     }
     
+    @PutMapping("/{id}/details")
+    public ResponseEntity<ApiResponse<MaterialDTOs.MaterialResponse>> updateMaterialDetails(
+            @PathVariable UUID id,
+            @Valid @RequestBody MaterialDTOs.MaterialUpdateRequest request,
+            Authentication authentication) {
+        
+        log.info("Update material details request received for ID: {}", id);
+        
+        // Get the authenticated user
+        String email = authentication.getName();
+        Professor professor = professorService.findProfessorEntityByEmail(email);
+        
+        // Update the material
+        MaterialDTOs.MaterialResponse response = materialService.updateMaterial(id, request, professor);
+        
+        return ResponseEntity.ok(ApiResponse.success("Material updated successfully", response));
+    }
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteMaterial(
             @PathVariable UUID id,
-            @RequestParam UUID professorId) {
-        log.info("Delete material request received for ID: {} by professor ID: {}", id, professorId);
+            Authentication authentication) {
+        log.info("Delete material request received for ID: {}", id);
         
-        Professor professor = professorService.getProfessorEntityById(professorId);
+        // Get the authenticated user
+        String email = authentication.getName();
+        Professor professor = professorService.findProfessorEntityByEmail(email);
+        
         materialService.deleteMaterial(id, professor);
         
         return ResponseEntity.ok(ApiResponse.success("Material deleted successfully"));
