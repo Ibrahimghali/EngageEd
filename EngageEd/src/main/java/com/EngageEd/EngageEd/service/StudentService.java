@@ -100,4 +100,6 @@ public interface StudentService {
      * @param id The student UUID
      */
     void deleteStudent(UUID id);
+
+    Student findStudentEntityByEmail(String email);
 }

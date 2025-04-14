@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,9 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.EngageEd.EngageEd.dto.ApiResponse;
+import com.EngageEd.EngageEd.dto.EnrollmentDTOs;
 import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.dto.StudentDTOs;
+import com.EngageEd.EngageEd.dto.SubjectDTOs; // Add this import
+import com.EngageEd.EngageEd.model.Student;
+import com.EngageEd.EngageEd.service.EnrollmentService;
 import com.EngageEd.EngageEd.service.StudentService;
+import com.EngageEd.EngageEd.service.SubjectService; // Add this import
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 public class StudentController {
 
     private final StudentService studentService;
+    private final EnrollmentService enrollmentService;
+    private final SubjectService subjectService; // Add this line
     
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<StudentDTOs.StudentResponse>> registerStudent(
@@ -103,5 +111,86 @@ public class StudentController {
         studentService.deleteStudent(id);
         
         return ResponseEntity.ok(ApiResponse.success("Student deleted successfully"));
+    }
+
+    @PostMapping("/enroll")
+    public ResponseEntity<ApiResponse<EnrollmentDTOs.EnrollmentResponse>> enrollInSubject(
+            @RequestParam String subjectCode,
+            Authentication authentication) {
+        
+        log.info("Self-enrollment request received for subject code: {}", subjectCode);
+        
+        // Get authenticated student
+        String email = authentication.getName();
+        Student student = studentService.findStudentEntityByEmail(email);
+        
+        try {
+            EnrollmentDTOs.EnrollmentResponse response = enrollmentService.enrollStudentByCode(subjectCode, student);
+            return ResponseEntity.ok(ApiResponse.success("Successfully enrolled in subject", response));
+        } catch (IllegalArgumentException e) {
+            // Handle case where student is already enrolled
+            if (e.getMessage().contains("already enrolled")) {
+                return ResponseEntity.ok(ApiResponse.success("You are already enrolled in this subject", null));
+            }
+            throw e;
+        }
+    }
+
+    @GetMapping("/enrollments")
+    public ResponseEntity<ApiResponse<List<EnrollmentDTOs.EnrollmentResponse>>> getEnrolledSubjects(
+            Authentication authentication) {
+        
+        String email = authentication.getName();
+        
+        List<EnrollmentDTOs.EnrollmentResponse> enrollments = 
+                enrollmentService.getEnrollmentsByStudentEmail(email);
+        
+        return ResponseEntity.ok(ApiResponse.success("Enrolled subjects retrieved successfully", enrollments));
+    }
+
+    @DeleteMapping("/enrollments/{enrollmentId}")
+    public ResponseEntity<ApiResponse<Void>> unenrollFromSubject(
+            @PathVariable UUID enrollmentId,
+            Authentication authentication) {
+        
+        String email = authentication.getName();
+        
+        enrollmentService.unenrollStudent(enrollmentId, email);
+        
+        return ResponseEntity.ok(ApiResponse.success("Successfully unenrolled from subject"));
+    }
+
+    @GetMapping("/enrollments/{enrollmentId}")
+    public ResponseEntity<ApiResponse<EnrollmentDTOs.EnrollmentResponse>> getEnrollmentDetails(
+            @PathVariable UUID enrollmentId,
+            Authentication authentication) {
+        
+        String email = authentication.getName();
+        
+        EnrollmentDTOs.EnrollmentResponse enrollment = 
+                enrollmentService.getEnrollmentDetails(enrollmentId, email);
+        
+        return ResponseEntity.ok(ApiResponse.success("Enrollment details retrieved successfully", enrollment));
+    }
+
+    @GetMapping("/available-subjects")
+    public ResponseEntity<ApiResponse<List<SubjectDTOs.SubjectResponse>>> getAvailableSubjects(
+            Authentication authentication) {
+        
+        String email = authentication.getName();
+        List<SubjectDTOs.SubjectResponse> availableSubjects = subjectService.getAvailableSubjectsForStudent(email);
+        
+        return ResponseEntity.ok(ApiResponse.success("Available subjects retrieved successfully", availableSubjects));
+    }
+
+    @GetMapping("/enrollments/check")
+    public ResponseEntity<ApiResponse<Boolean>> checkEnrollmentStatus(
+            @RequestParam UUID subjectId,
+            Authentication authentication) {
+        
+        String email = authentication.getName();
+        boolean isEnrolled = enrollmentService.isStudentEnrolledInSubject(email, subjectId);
+        
+        return ResponseEntity.ok(ApiResponse.success("Enrollment status checked", isEnrolled));
     }
 }

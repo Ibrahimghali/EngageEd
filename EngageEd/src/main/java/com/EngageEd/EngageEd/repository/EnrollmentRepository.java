@@ -2,6 +2,7 @@ package com.EngageEd.EngageEd.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -38,4 +39,8 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
     long countByStudentAndActive(Student student, boolean b);
 
     long countBySubjectAndActive(Subject subject, boolean b);
+
+    Optional<Subject> findByStudentId(UUID id);
+
+    Set<UUID> findSubjectIdsByStudentId(UUID id);
 }

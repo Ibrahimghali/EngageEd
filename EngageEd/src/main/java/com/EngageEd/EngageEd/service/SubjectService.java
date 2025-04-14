@@ -153,4 +153,13 @@ public interface SubjectService {
      * @return A new unique subject code
      */
     String generateUniqueSubjectCode();
+    
+    /**
+     * Get all subjects that are available for a student to enroll in
+     * (subjects where the student is not already enrolled)
+     * 
+     * @param studentEmail the email of the student
+     * @return list of subjects available for enrollment
+     */
+    List<SubjectDTOs.SubjectResponse> getAvailableSubjectsForStudent(String studentEmail);
 }

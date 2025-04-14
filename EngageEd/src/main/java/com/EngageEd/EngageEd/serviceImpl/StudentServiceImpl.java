@@ -182,6 +182,14 @@ public class StudentServiceImpl implements StudentService {
         studentRepository.delete(student);
     }
     
+    @Override
+    @Transactional(readOnly = true)
+    public Student findStudentEntityByEmail(String email) {
+        log.info("Finding student entity with email: {}", email);
+        return studentRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with email: " + email));
+    }
+    
     private StudentDTOs.StudentResponse toStudentResponse(Student student) {
         long enrolledSubjectsCount = enrollmentRepository.countByStudentAndActive(student, true);
         

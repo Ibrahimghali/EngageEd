@@ -27,4 +27,6 @@ public interface SubjectRepository extends JpaRepository<Subject, UUID> {
     List<Subject> findByActive(boolean active);
     
     long countByCreator(Professor professor);
+
+    List<Subject> findByActiveTrue();
 }

@@ -3,6 +3,7 @@ package com.EngageEd.EngageEd.serviceImpl;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,9 +16,11 @@ import com.EngageEd.EngageEd.exception.AccessDeniedException;
 import com.EngageEd.EngageEd.exception.ResourceNotFoundException;
 import com.EngageEd.EngageEd.model.Professor;
 import com.EngageEd.EngageEd.model.Subject;
+import com.EngageEd.EngageEd.model.Student;
 import com.EngageEd.EngageEd.repository.EnrollmentRepository;
 import com.EngageEd.EngageEd.repository.MaterialRepository;
 import com.EngageEd.EngageEd.repository.SubjectRepository;
+import com.EngageEd.EngageEd.repository.StudentRepository;
 import com.EngageEd.EngageEd.service.ProfessorService;
 import com.EngageEd.EngageEd.service.SubjectService;
 
@@ -33,6 +36,7 @@ public class SubjectServiceImpl implements SubjectService {
     private final EnrollmentRepository enrollmentRepository;
     private final MaterialRepository materialRepository;
     private final ProfessorService professorService;
+    private final StudentRepository studentRepository;
     
     @Override
     @Transactional
@@ -254,5 +258,28 @@ public class SubjectServiceImpl implements SubjectService {
         
         // Map to response DTO and return
         return toSubjectResponse(savedSubject);  // Changed from mapToSubjectResponse to toSubjectResponse
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubjectDTOs.SubjectResponse> getAvailableSubjectsForStudent(String studentEmail) {
+        log.info("Getting available subjects for student with email: {}", studentEmail);
+        
+        // Find the student
+        Student student = studentRepository.findByEmail(studentEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with email: " + studentEmail));
+        
+        // Get all active subjects
+        List<Subject> allSubjects = subjectRepository.findByActiveTrue();
+        
+        // Get the IDs of subjects the student is already enrolled in
+        // METHOD 1: Use a direct repository query
+        Set<UUID> enrolledSubjectIds = enrollmentRepository.findSubjectIdsByStudentId(student.getId());
+        
+        // Filter out subjects the student is already enrolled in
+        return allSubjects.stream()
+                .filter(subject -> !enrolledSubjectIds.contains(subject.getId()))
+                .map(this::toSubjectResponse)
+                .collect(Collectors.toList());
     }
 }

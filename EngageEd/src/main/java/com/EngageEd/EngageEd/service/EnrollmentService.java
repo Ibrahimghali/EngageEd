@@ -109,4 +109,34 @@ public interface EnrollmentService {
      * @return True if the student is enrolled
      */
     boolean isStudentEnrolledInSubject(UUID studentId, UUID subjectId);
+
+    /**
+     * Checks if a student is enrolled in a specific subject
+     */
+    boolean isStudentEnrolledInSubject(String email, UUID subjectId);
+
+    /**
+     * Gets all enrollments for a student by email
+     * 
+     * @param email The student's email
+     * @return List of enrollments
+     */
+    List<EnrollmentDTOs.EnrollmentResponse> getEnrollmentsByStudentEmail(String email);
+    
+    /**
+     * Removes a student from a subject
+     * 
+     * @param enrollmentId The enrollment UUID
+     * @param email The student's email
+     */
+    void unenrollStudent(UUID enrollmentId, String email);
+    
+    /**
+     * Gets details of a specific enrollment
+     * 
+     * @param enrollmentId The enrollment UUID
+     * @param email The student's email
+     * @return The enrollment DTO
+     */
+    EnrollmentDTOs.EnrollmentResponse getEnrollmentDetails(UUID enrollmentId, String email);
 }

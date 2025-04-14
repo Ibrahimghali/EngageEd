@@ -1,5 +1,17 @@
-{"properties": [{
-  "name": "file.upload-dir",
-  "type": "java.lang.String",
-  "description": "A description for 'file.upload-dir'"
-}]}
+{"properties": [
+  {
+    "name": "file.upload-dir",
+    "type": "java.lang.String",
+    "description": "A description for 'file.upload-dir'"
+  },
+  {
+    "name": "file.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'file.base-url'"
+  },
+  {
+    "name": "firebase.config-file",
+    "type": "java.lang.String",
+    "description": "A description for 'firebase.config-file'"
+  }
+]}
