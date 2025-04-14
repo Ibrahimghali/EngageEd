@@ -1,2 +1,4 @@
 .vscode
 Docs
+EngageEd/src/main/resources/application.properties
+EngageEd/src/main/resources/firebase-service-account.json

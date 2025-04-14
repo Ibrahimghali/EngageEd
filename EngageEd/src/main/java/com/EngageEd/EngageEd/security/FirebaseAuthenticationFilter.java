@@ -1,0 +1,82 @@
+package com.EngageEd.EngageEd.security;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.context.request.WebRequestInterceptor;
+
+import com.EngageEd.EngageEd.dto.UserDTOs;
+import com.EngageEd.EngageEd.service.UserService;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
+
+    private final FirebaseAuth firebaseAuth;
+    private final UserService userService;
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
+        
+        final String authHeader = request.getHeader("Authorization");
+        
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
+        final String firebaseToken = authHeader.substring(7); // Remove "Bearer " prefix
+        
+        try {
+            // Verify Firebase token directly
+            FirebaseToken decodedToken = firebaseAuth.verifyIdToken(firebaseToken);
+            String firebaseUid = decodedToken.getUid();
+            
+            if (firebaseUid != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // Get user from our database
+                UserDTOs.UserResponse user = userService.getUserByFirebaseUid(firebaseUid);
+                
+                // Set authentication
+                List<SimpleGrantedAuthority> authorities = List.of(
+                    new SimpleGrantedAuthority("ROLE_" + user.getRole())
+                );
+                
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    user.getEmail(),
+                    null,
+                    authorities
+                );
+                
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        } catch (FirebaseAuthException e) {
+            log.error("Firebase authentication failed", e);
+            // Invalid token - don't set authentication
+        }
+        
+        filterChain.doFilter(request, response);
+    }
+}

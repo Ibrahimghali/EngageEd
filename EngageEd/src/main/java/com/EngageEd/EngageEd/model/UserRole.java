@@ -1,7 +1,7 @@
 package com.EngageEd.EngageEd.model;
 
 public enum UserRole {
-    STUDENT,
+    DEPARTMENT_CHIEF,
     PROFESSOR,
-    DEPARTMENT_CHIEF
+    STUDENT
 }
