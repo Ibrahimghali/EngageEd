@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.EngageEd.EngageEd.dto.AuthenticationDTOs;
 import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.dto.ProfessorDTOs;
 import com.EngageEd.EngageEd.exception.ResourceAlreadyExistsException;
@@ -283,6 +284,28 @@ public class ProfessorServiceImpl implements ProfessorService {
         log.info("Finding professor entity with email: {}", email);
         return professorRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Professor not found with email: " + email));
+    }
+
+    @Override
+    @Transactional
+    public Professor createProfessor(AuthenticationDTOs.RegistrationRequest request, String firebaseUid) {
+        log.info("Creating professor from authentication request with email: {}", request.getEmail());
+        
+        // Check if email is already in use
+        if (userService.existsByEmail(request.getEmail())) {
+            throw new ResourceAlreadyExistsException("Email already exists");
+        }
+        
+        Professor professor = Professor.builder()
+                .email(request.getEmail())
+                .fullName(request.getFullName())
+                .matricule(request.getMatricule())
+                .firebaseUid(firebaseUid)
+                .role(UserRole.PROFESSOR)
+                .active(true)
+                .build();
+        
+        return professorRepository.save(professor);
     }
 
     private ProfessorDTOs.ProfessorResponse toProfessorResponse(Professor professor) {

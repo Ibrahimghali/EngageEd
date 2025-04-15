@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.dto.StudentDTOs;
 import com.EngageEd.EngageEd.model.Student;
+import com.EngageEd.EngageEd.dto.AuthenticationDTOs;
 
 /**
  * Service interface for student operations
@@ -102,4 +103,13 @@ public interface StudentService {
     void deleteStudent(UUID id);
 
     Student findStudentEntityByEmail(String email);
+
+    /**
+     * Create a student from registration request
+     * 
+     * @param request The registration request
+     * @param firebaseUid The Firebase UID
+     * @return The created student entity
+     */
+    Student createStudent(AuthenticationDTOs.RegistrationRequest request, String firebaseUid);
 }

@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.EngageEd.EngageEd.dto.ApiResponse;
 import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.dto.ProfessorDTOs;
-import com.EngageEd.EngageEd.model.DepartmentChief;
-import com.EngageEd.EngageEd.service.DepartmentChiefService;
 import com.EngageEd.EngageEd.service.ProfessorService;
 
 import jakarta.validation.Valid;
@@ -34,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ProfessorController {
 
     private final ProfessorService professorService;
-    private final DepartmentChiefService departmentChiefService;
     
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<ProfessorDTOs.ProfessorResponse>> registerProfessor(
@@ -46,20 +43,6 @@ public class ProfessorController {
         return new ResponseEntity<>(ApiResponse.success("Professor registered successfully", response), HttpStatus.CREATED);
     }
     
-    @PostMapping("/invite")
-    public ResponseEntity<ApiResponse<ProfessorDTOs.ProfessorResponse>> inviteProfessor(
-            @Valid @RequestBody ProfessorDTOs.ProfessorInviteRequest request,
-            Authentication authentication) {
-        log.info("Invite professor request received: {}", request.getEmail());
-        
-        // Get authenticated department chief
-        String email = authentication.getName();
-        DepartmentChief departmentChief = departmentChiefService.findDepartmentChiefEntityByEmail(email);
-        
-        ProfessorDTOs.ProfessorResponse response = professorService.inviteProfessor(request, departmentChief);
-        
-        return new ResponseEntity<>(ApiResponse.success("Professor invited successfully", response), HttpStatus.CREATED);
-    }
     
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProfessorDTOs.ProfessorResponse>> getProfessor(

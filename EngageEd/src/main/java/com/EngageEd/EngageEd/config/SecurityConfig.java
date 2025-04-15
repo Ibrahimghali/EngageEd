@@ -12,7 +12,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.EngageEd.EngageEd.security.FirebaseAuthenticationFilter;
-import com.EngageEd.EngageEd.security.SecurityExceptionHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +24,6 @@ import java.util.List;
 public class SecurityConfig {
 
     private final FirebaseAuthenticationFilter firebaseAuthenticationFilter;
-    private final SecurityExceptionHandler securityExceptionHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

@@ -8,12 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.EngageEd.EngageEd.dto.ApiResponse;
 import com.EngageEd.EngageEd.dto.AuthenticationDTOs;
-import com.EngageEd.EngageEd.dto.ProfessorDTOs;
-import com.EngageEd.EngageEd.dto.StudentDTOs;
 import com.EngageEd.EngageEd.model.UserRole;
 import com.EngageEd.EngageEd.service.FirebaseAuthService;
-import com.EngageEd.EngageEd.service.StudentService;
 import com.EngageEd.EngageEd.service.ProfessorService;
+import com.EngageEd.EngageEd.service.ProfessorValidationService;
+import com.EngageEd.EngageEd.service.StudentService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,40 +27,32 @@ public class AuthController {
     private final FirebaseAuthService firebaseAuthService;
     private final StudentService studentService;
     private final ProfessorService professorService;
+    private final ProfessorValidationService professorValidationService;
     
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> register(
             @Valid @RequestBody AuthenticationDTOs.RegistrationRequest request) {
         log.info("Registration request received for email: {}", request.getEmail());
         
-        // Create Firebase user first
-        String firebaseUid = firebaseAuthService.createFirebaseUser(
-            request.getEmail(), 
-            request.getPassword(),
-            request.getFullName(),
-            request.getRole()
-        );
-        
-        // Create local user based on role
-        if (request.getRole() == UserRole.STUDENT) {
-            studentService.createStudent(
-                StudentDTOs.StudentRegistrationRequest.builder()
-                    .email(request.getEmail())
-                    .fullName(request.getFullName())
-                    .firebaseUid(firebaseUid)
-                    .build()
-            );
-        } else if (request.getRole() == UserRole.PROFESSOR) {
-            professorService.createProfessor(
-                ProfessorDTOs.ProfessorRegistrationRequest.builder()
-                    .email(request.getEmail())
-                    .fullName(request.getFullName())
-                    .firebaseUid(firebaseUid)
-                    .build()
-            );
+        // Validate professor matricule if the role is PROFESSOR
+        if (request.getRole() == UserRole.PROFESSOR) {
+            boolean isValidProfessor = professorValidationService.isValidProfessorMatricule(request.getMatricule());
+            if (!isValidProfessor) {
+                throw new IllegalArgumentException("Invalid professor matricule. You are not authorized as a professor.");
+            }
         }
         
-        return ResponseEntity.ok(ApiResponse.success("Registration successful. Please log in."));
+        // Create Firebase user
+        String firebaseUid = firebaseAuthService.createUser(request.getEmail(), request.getPassword());
+        
+        // Create user in our database
+        if (request.getRole() == UserRole.STUDENT) {
+            studentService.createStudent(request, firebaseUid);
+        } else if (request.getRole() == UserRole.PROFESSOR) {
+            professorService.createProfessor(request, firebaseUid);
+        }
+        
+        return ResponseEntity.ok(ApiResponse.success("User registered successfully"));
     }
     
     @PostMapping("/login")
@@ -90,7 +81,8 @@ public class AuthController {
             @Valid @RequestBody AuthenticationDTOs.PasswordResetRequest request) {
         log.info("Password reset request received for email: {}", request.getEmail());
         
-        String resetLink = firebaseAuthService.generatePasswordResetLink(request.getEmail());
+        // Generate reset link but don't assign to unused variable
+        firebaseAuthService.generatePasswordResetLink(request.getEmail());
         // In a real implementation, you would send this link via email
         
         return ResponseEntity.ok(ApiResponse.success("Password reset email sent"));

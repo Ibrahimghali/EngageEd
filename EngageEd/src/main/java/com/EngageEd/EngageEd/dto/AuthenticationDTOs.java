@@ -76,8 +76,7 @@ public class AuthenticationDTOs {
     @AllArgsConstructor
     public static class RegistrationRequest {
         @NotBlank(message = "Email is required")
-        @Email(message = "Email must be valid")
-        @Size(max = 255, message = "Email cannot exceed 255 characters")
+        @Email(message = "Invalid email format")
         private String email;
         
         @NotBlank(message = "Password is required")
@@ -85,13 +84,13 @@ public class AuthenticationDTOs {
         private String password;
         
         @NotBlank(message = "Full name is required")
-        @Size(max = 255, message = "Full name cannot exceed 255 characters")
         private String fullName;
+        
+        @NotNull(message = "Matricule is required")
+        private Integer matricule;
         
         @NotNull(message = "User role is required")
         private UserRole role;
-        
-        private String firebaseToken;
     }
 
     /**

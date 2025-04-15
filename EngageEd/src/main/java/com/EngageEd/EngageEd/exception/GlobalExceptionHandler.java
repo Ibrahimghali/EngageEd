@@ -132,4 +132,21 @@ public class GlobalExceptionHandler {
         
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRuntimeException(RuntimeException ex) {
+        String message = "An unexpected error occurred. Please try again later.";
+        
+        // Check for Firebase email exists error
+        if (ex.getMessage() != null && ex.getMessage().contains("EMAIL_EXISTS")) {
+            message = "A user with this email already exists. Please use a different email address or try logging in.";
+        }
+        
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .success(false)
+                .message(message)
+                .build();
+                
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }

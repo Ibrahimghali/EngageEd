@@ -74,4 +74,13 @@ public interface FirebaseAuthService {
      * @param uid The Firebase UID
      * @param role The role to assign
      */
+
+    /**
+     * Creates a new user in Firebase
+     * 
+     * @param email The user's email
+     * @param password The user's password
+     * @return The Firebase UID of the created user
+     */
+    String createUser(String email, String password);
 }

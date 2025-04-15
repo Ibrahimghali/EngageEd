@@ -9,6 +9,7 @@ import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.dto.ProfessorDTOs;
 import com.EngageEd.EngageEd.model.DepartmentChief;
 import com.EngageEd.EngageEd.model.Professor;
+import com.EngageEd.EngageEd.dto.AuthenticationDTOs;
 
 /**
  * Service interface for professor operations
@@ -139,4 +140,13 @@ public interface ProfessorService {
      * @throws ResourceNotFoundException if professor not found
      */
     Professor findProfessorEntityByEmail(String email);
+
+    /**
+     * Create a new professor from registration request
+     * 
+     * @param request The registration request
+     * @param firebaseUid The Firebase UID
+     * @return The created professor entity
+     */
+    Professor createProfessor(AuthenticationDTOs.RegistrationRequest request, String firebaseUid);
 }

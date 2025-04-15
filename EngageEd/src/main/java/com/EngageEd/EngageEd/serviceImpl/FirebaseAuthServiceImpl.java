@@ -138,4 +138,22 @@ public class FirebaseAuthServiceImpl implements FirebaseAuthService {
         }
     }
 
+    @Override
+    public String createUser(String email, String password) {
+        log.info("Creating Firebase user with email: {}", email);
+        
+        try {
+            UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                    .setEmail(email)
+                    .setPassword(password)
+                    .setEmailVerified(false);
+            
+            UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+            return userRecord.getUid();
+        } catch (FirebaseAuthException e) {
+            log.error("Error creating Firebase user: {}", e.getMessage());
+            throw new RuntimeException("Error creating user in Firebase: " + e.getMessage());
+        }
+    }
+
 }
