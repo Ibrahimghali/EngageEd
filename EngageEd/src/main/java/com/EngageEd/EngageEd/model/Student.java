@@ -8,8 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "students")
@@ -18,6 +16,4 @@ import java.util.Set;
 @SuperBuilder // Add this annotation
 @NoArgsConstructor
 public class Student extends User {
-    @OneToMany(mappedBy = "student")
-    private Set<Enrollment> enrollments = new HashSet<>();
 }

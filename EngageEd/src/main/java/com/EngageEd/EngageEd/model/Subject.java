@@ -16,7 +16,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder // Add this annotation to enable the builder pattern
+@Builder
 public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -36,12 +36,13 @@ public class Subject {
     private Professor creator;
     
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
-    @Builder.Default // Add this to initialize collections in builder
+    @Builder.Default
     private Set<Material> materials = new HashSet<>();
     
-    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
-    @Builder.Default // Add this to initialize collections in builder
-    private Set<Enrollment> enrollments = new HashSet<>();
+    // Remove the enrollment relationship
+    // @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
+    // @Builder.Default
+    // private Set<Enrollment> enrollments = new HashSet<>();
     
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -50,7 +51,7 @@ public class Subject {
     private LocalDateTime updatedAt;
     
     @Column(nullable = false)
-    @Builder.Default // Add this to use the default value in builder
+    @Builder.Default
     private boolean active = true;
     
     @PrePersist
