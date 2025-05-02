@@ -39,7 +39,7 @@ public class StudentServiceImpl implements StudentService {
         Student student = Student.builder()
                 .email(request.getEmail())
                 .fullName(request.getFullName())
-                // Removed matricule as it doesn't exist in Student builder
+                .matricule(request.getMatricule())  // Include matricule from the request
                 .firebaseUid(firebaseUid)
                 .role(UserRole.STUDENT)
                 .active(true)

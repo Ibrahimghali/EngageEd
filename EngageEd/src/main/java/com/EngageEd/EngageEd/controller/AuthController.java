@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.EngageEd.EngageEd.dto.ApiResponse;
 import com.EngageEd.EngageEd.dto.AuthenticationDTOs;
+import com.EngageEd.EngageEd.model.DepartmentChief;
 import com.EngageEd.EngageEd.model.UserRole;
+import com.EngageEd.EngageEd.service.ChiefDepartmentValidationService;
+import com.EngageEd.EngageEd.service.DepartmentChiefService;
 import com.EngageEd.EngageEd.service.FirebaseAuthService;
 import com.EngageEd.EngageEd.service.ProfessorService;
 import com.EngageEd.EngageEd.service.ProfessorValidationService;
@@ -28,31 +31,69 @@ public class AuthController {
     private final StudentService studentService;
     private final ProfessorService professorService;
     private final ProfessorValidationService professorValidationService;
+    private final ChiefDepartmentValidationService chiefDepartmentValidationService;
+    private final DepartmentChiefService departmentChiefService;
     
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> register(
             @Valid @RequestBody AuthenticationDTOs.RegistrationRequest request) {
-        log.info("Registration request received for email: {}", request.getEmail());
+        log.info("Registration request received for email: {}, role: {}", request.getEmail(), request.getRole());
         
-        // Validate professor matricule if the role is PROFESSOR
-        if (request.getRole() == UserRole.PROFESSOR) {
-            boolean isValidProfessor = professorValidationService.isValidProfessorMatricule(request.getMatricule());
-            if (!isValidProfessor) {
-                throw new IllegalArgumentException("Invalid professor matricule. You are not authorized as a professor.");
+        try {
+            // Validate professor matricule if the role is PROFESSOR
+            if (request.getRole() == UserRole.PROFESSOR) {
+                boolean isValidProfessor = professorValidationService.isValidProfessorMatricule(request.getMatricule());
+                if (!isValidProfessor) {
+                    throw new IllegalArgumentException("Invalid professor matricule. You are not authorized as a professor.");
+                }
+                
+                boolean isValidIdentity = professorValidationService.validateProfessorIdentity(
+                    request.getMatricule(), request.getFullName());
+                if (!isValidIdentity) {
+                    throw new IllegalArgumentException("Professor identity verification failed. Name doesn't match our records.");
+                }
             }
+            
+            // Validate department chief matricule if the role is DEPARTMENT_CHIEF
+            if (request.getRole() == UserRole.DEPARTMENT_CHIEF) {
+                boolean isValidChief = chiefDepartmentValidationService.isValidChiefDepartmentMatricule(request.getMatricule());
+                if (!isValidChief) {
+                    throw new IllegalArgumentException("Invalid department chief matricule. You are not authorized as a department chief.");
+                }
+                
+                boolean isValidIdentity = chiefDepartmentValidationService.validateChiefDepartmentIdentity(
+                    request.getMatricule(), request.getFullName());
+                if (!isValidIdentity) {
+                    throw new IllegalArgumentException("Department chief identity verification failed. Name doesn't match our records.");
+                }
+            }
+            
+            // Create Firebase user
+            String firebaseUid = firebaseAuthService.createUser(request.getEmail(), request.getPassword());
+            log.info("Firebase user created with UID: {}", firebaseUid);
+            
+            // Create user in our database
+            if (request.getRole() == UserRole.STUDENT) {
+                studentService.createStudent(request, firebaseUid);
+            } else if (request.getRole() == UserRole.PROFESSOR) {
+                professorService.createProfessor(request, firebaseUid);
+            } else if (request.getRole() == UserRole.DEPARTMENT_CHIEF) {
+                log.info("Creating department chief in database");
+                DepartmentChief chief = departmentChiefService.createDepartmentChief(request, firebaseUid);
+                log.info("Department chief created successfully: {}", chief.getId());
+            }
+            
+            // Add this line to debug post-database operations
+            log.info("Database operations completed successfully, proceeding with any post-processing");
+            
+            // LIKELY ERROR IS HERE: Setting custom claims or other post-registration processing
+            
+            log.info("Registration completed successfully");
+            return ResponseEntity.ok(ApiResponse.success("User registered successfully"));
+        } catch (Exception e) {
+            log.error("Error during registration: ", e);
+            throw e;
         }
-        
-        // Create Firebase user
-        String firebaseUid = firebaseAuthService.createUser(request.getEmail(), request.getPassword());
-        
-        // Create user in our database
-        if (request.getRole() == UserRole.STUDENT) {
-            studentService.createStudent(request, firebaseUid);
-        } else if (request.getRole() == UserRole.PROFESSOR) {
-            professorService.createProfessor(request, firebaseUid);
-        }
-        
-        return ResponseEntity.ok(ApiResponse.success("User registered successfully"));
     }
     
     @PostMapping("/login")

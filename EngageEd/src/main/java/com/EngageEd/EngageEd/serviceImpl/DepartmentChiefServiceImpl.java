@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.EngageEd.EngageEd.dto.AuthenticationDTOs;
 import com.EngageEd.EngageEd.dto.DepartmentChiefDTOs;
 import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.exception.ResourceAlreadyExistsException;
@@ -48,6 +49,29 @@ public class DepartmentChiefServiceImpl implements DepartmentChiefService {
                 .departmentName(request.getDepartmentName())
                 .firebaseUid(request.getFirebaseUid())
                 .role(UserRole.DEPARTMENT_CHIEF)
+                .active(true)
+                .build();
+        
+        return departmentChiefRepository.save(departmentChief);
+    }
+
+    @Override
+    @Transactional
+    public DepartmentChief createDepartmentChief(AuthenticationDTOs.RegistrationRequest request, String firebaseUid) {
+        log.info("Creating department chief from auth flow with email: {}", request.getEmail());
+        
+        // Check if email is already in use
+        if (userService.existsByEmail(request.getEmail())) {
+            throw new ResourceAlreadyExistsException("User already exists with email: " + request.getEmail());
+        }
+        
+        DepartmentChief departmentChief = DepartmentChief.builder()
+                .email(request.getEmail())
+                .fullName(request.getFullName())
+                .matricule(request.getMatricule())
+                .firebaseUid(firebaseUid)
+                .role(UserRole.DEPARTMENT_CHIEF)
+                .departmentName("Computer Science Department") // Add default department name
                 .active(true)
                 .build();
         
