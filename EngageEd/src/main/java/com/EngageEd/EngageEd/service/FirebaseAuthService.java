@@ -83,4 +83,12 @@ public interface FirebaseAuthService {
      * @return The Firebase UID of the created user
      */
     String createUser(String email, String password);
+
+    /**
+     * Deletes a user from Firebase Authentication by their UID
+     * 
+     * @param firebaseUid the unique identifier of the user in Firebase
+     * @throws Exception if the deletion fails
+     */
+    void deleteUser(String firebaseUid) throws Exception;
 }

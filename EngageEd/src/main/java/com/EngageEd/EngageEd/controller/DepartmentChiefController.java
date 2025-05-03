@@ -126,7 +126,9 @@ public class DepartmentChiefController {
         
         departmentChiefService.deleteDepartmentChief(id);
         
-        return ResponseEntity.ok(ApiResponse.success("Department chief deleted successfully"));
+        // Indicate in the response that the user should log out
+        return ResponseEntity.ok(ApiResponse.success(
+            "Department chief deleted successfully. You should log out as this account no longer exists."));
     }
     
     private boolean hasDepartmentChiefOrAdminRole(Authentication authentication) {

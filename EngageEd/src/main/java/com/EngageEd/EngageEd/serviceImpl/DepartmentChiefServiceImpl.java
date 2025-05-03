@@ -19,6 +19,7 @@ import com.EngageEd.EngageEd.model.UserRole;
 import com.EngageEd.EngageEd.repository.DepartmentChiefRepository;
 import com.EngageEd.EngageEd.repository.ProfessorRepository;
 import com.EngageEd.EngageEd.service.DepartmentChiefService;
+import com.EngageEd.EngageEd.service.FirebaseAuthService;
 import com.EngageEd.EngageEd.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class DepartmentChiefServiceImpl implements DepartmentChiefService {
     private final DepartmentChiefRepository departmentChiefRepository;
     private final ProfessorRepository professorRepository;
     private final UserService userService;
+    private final FirebaseAuthService firebaseAuthService;
     
     @Override
     @Transactional
@@ -124,6 +126,8 @@ public class DepartmentChiefServiceImpl implements DepartmentChiefService {
         return departmentChiefRepository.save(departmentChief);
     }
 
+    
+
     @Override
     @Transactional(readOnly = true)
     public DepartmentChiefDTOs.DepartmentChiefResponse getDepartmentChiefById(UUID id) {
@@ -210,8 +214,25 @@ public class DepartmentChiefServiceImpl implements DepartmentChiefService {
     @Transactional
     public void deleteDepartmentChief(UUID id) {
         log.info("Deleting department chief with ID: {}", id);
-        DepartmentChief departmentChief = getDepartmentChiefEntityById(id);
-        departmentChiefRepository.delete(departmentChief);
+        
+        // Find the department chief first
+        DepartmentChief chief = departmentChiefRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Department chief not found with ID: " + id));
+        
+        // Get the Firebase UID before deleting
+        String firebaseUid = chief.getFirebaseUid();
+        
+        // Delete from the database
+        departmentChiefRepository.deleteById(id);
+        
+        // Also delete the user from Firebase Auth
+        try {
+            firebaseAuthService.deleteUser(firebaseUid);
+            log.info("Firebase user deleted for UID: {}", firebaseUid);
+        } catch (Exception e) {
+            log.error("Error deleting Firebase user: {}", e.getMessage());
+            // Continue with the operation even if Firebase deletion fails
+        }
     }
     
     @Override

@@ -156,4 +156,15 @@ public class FirebaseAuthServiceImpl implements FirebaseAuthService {
         }
     }
 
+    @Override
+    public void deleteUser(String firebaseUid) throws Exception {
+        try {
+            FirebaseAuth.getInstance().deleteUser(firebaseUid);
+            log.info("Successfully deleted user with UID: {}", firebaseUid);
+        } catch (FirebaseAuthException e) {
+            log.error("Error deleting Firebase user: {}", e.getMessage());
+            throw new RuntimeException("Error deleting user in Firebase: " + e.getMessage(), e);
+        }
+    }
+
 }
