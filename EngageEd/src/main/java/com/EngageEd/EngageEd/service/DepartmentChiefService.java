@@ -5,8 +5,11 @@ import java.util.UUID;
 
 import com.EngageEd.EngageEd.dto.AuthenticationDTOs;
 import com.EngageEd.EngageEd.dto.DepartmentChiefDTOs;
+import com.EngageEd.EngageEd.dto.DepartmentChiefDTOs.DepartmentChiefRegistrationRequest;
 import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.model.DepartmentChief;
+
+import jakarta.validation.Valid;
 
 /**
  * Service interface for department chief operations
@@ -102,4 +105,7 @@ public interface DepartmentChiefService {
      * @throws ResourceNotFoundException if no department chief is found with the given email
      */
     DepartmentChief findDepartmentChiefEntityByEmail(String email);
+
+    DepartmentChief createDepartmentChiefWithFirebaseUid(
+            DepartmentChiefRegistrationRequest request, String firebaseUid);
 }

@@ -43,11 +43,19 @@ public class DepartmentChiefServiceImpl implements DepartmentChiefService {
             throw new ResourceAlreadyExistsException("User already exists with email: " + request.getEmail());
         }
         
+        // Convert matricule from String to Integer
+        Integer matriculeInt;
+        try {
+            matriculeInt = Integer.parseInt(request.getMatricule());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Matricule must be a valid number", e);
+        }
+        
         DepartmentChief departmentChief = DepartmentChief.builder()
                 .email(request.getEmail())
                 .fullName(request.getFullName())
                 .departmentName(request.getDepartmentName())
-                .firebaseUid(request.getFirebaseUid())
+                .matricule(matriculeInt)
                 .role(UserRole.DEPARTMENT_CHIEF)
                 .active(true)
                 .build();
@@ -72,6 +80,44 @@ public class DepartmentChiefServiceImpl implements DepartmentChiefService {
                 .firebaseUid(firebaseUid)
                 .role(UserRole.DEPARTMENT_CHIEF)
                 .departmentName("Computer Science Department") // Add default department name
+                .active(true)
+                .build();
+        
+        return departmentChiefRepository.save(departmentChief);
+    }
+
+    @Transactional
+    public DepartmentChief createDepartmentChiefWithFirebaseUid(
+            DepartmentChiefDTOs.DepartmentChiefRegistrationRequest request, 
+            String firebaseUid) {
+        
+        // Check if email is already in use
+        if (userService.existsByEmail(request.getEmail())) {
+            throw new ResourceAlreadyExistsException("User already exists with email: " + request.getEmail());
+        }
+        
+        // Convert matricule from String to Integer
+        Integer matriculeInt;
+        try {
+            matriculeInt = Integer.parseInt(request.getMatricule());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Matricule must be a valid number", e);
+        }
+        
+        // Use a default department name if none is provided
+        String departmentName = request.getDepartmentName();
+        if (departmentName == null || departmentName.trim().isEmpty()) {
+            departmentName = "Computer Science Department"; // Default value
+        }
+        
+        // Use the builder pattern consistent with other methods
+        DepartmentChief departmentChief = DepartmentChief.builder()
+                .email(request.getEmail())
+                .fullName(request.getFullName())
+                .departmentName(departmentName)  // Use the validated department name
+                .matricule(matriculeInt)
+                .firebaseUid(firebaseUid)
+                .role(UserRole.DEPARTMENT_CHIEF)
                 .active(true)
                 .build();
         

@@ -24,20 +24,17 @@ public class DepartmentChiefDTOs {
     @AllArgsConstructor
     public static class DepartmentChiefRegistrationRequest {
         @NotBlank(message = "Email is required")
-        @Email(message = "Email must be valid")
-        @Size(max = 255, message = "Email cannot exceed 255 characters")
+        @Email(message = "Email should be valid")
         private String email;
         
         @NotBlank(message = "Full name is required")
-        @Size(min = 2, max = 100, message = "Full name must be between 2 and 100 characters")
         private String fullName;
         
         @NotBlank(message = "Department name is required")
-        @Size(min = 2, max = 100, message = "Department name must be between 2 and 100 characters")
         private String departmentName;
         
-        @NotBlank(message = "Firebase UID is required")
-        private String firebaseUid;
+        @NotBlank(message = "Matricule is required")
+        private String matricule;  // This field is required
     }
     
     /**

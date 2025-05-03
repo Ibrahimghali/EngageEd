@@ -21,7 +21,9 @@ import com.EngageEd.EngageEd.dto.ApiResponse;
 import com.EngageEd.EngageEd.dto.DepartmentChiefDTOs;
 import com.EngageEd.EngageEd.dto.PageResponse;
 import com.EngageEd.EngageEd.model.DepartmentChief;
+import com.EngageEd.EngageEd.model.UserRole;
 import com.EngageEd.EngageEd.service.DepartmentChiefService;
+import com.EngageEd.EngageEd.service.FirebaseAuthService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,22 +36,32 @@ import lombok.extern.slf4j.Slf4j;
 public class DepartmentChiefController {
 
     private final DepartmentChiefService departmentChiefService;
+    private final FirebaseAuthService firebaseAuthService;
     
     @PostMapping
     public ResponseEntity<ApiResponse<DepartmentChiefDTOs.DepartmentChiefResponse>> createDepartmentChief(
             @Valid @RequestBody DepartmentChiefDTOs.DepartmentChiefRegistrationRequest request,
-            Authentication authentication) {  // Add authentication
+            Authentication authentication) {
         log.info("Create department chief request received: {}", request.getEmail());
         
-        // Check if user has ADMIN role
-        if (!hasAdminRole(authentication)) {
-            throw new AccessDeniedException("Only administrators can create department chiefs");
+        // Check if user has DEPARTMENT_CHIEF role or ROLE_ADMIN
+        if (!hasDepartmentChiefOrAdminRole(authentication)) {
+            throw new AccessDeniedException("Only department chiefs or administrators can create department chiefs");
         }
         
-        DepartmentChief departmentChief = departmentChiefService.createDepartmentChief(request);
-        DepartmentChiefDTOs.DepartmentChiefResponse response = departmentChiefService.getDepartmentChiefById(departmentChief.getId());
+        // First create Firebase user to get UID
+        String firebaseUid = firebaseAuthService.createUser(request.getEmail(), "TemporaryPassword123!");
+        log.info("Firebase user created with UID: {}", firebaseUid);
         
-        return new ResponseEntity<>(ApiResponse.success("Department chief created successfully", response), HttpStatus.CREATED);
+        // Now create the department chief with the Firebase UID
+        DepartmentChief departmentChief = departmentChiefService.createDepartmentChiefWithFirebaseUid(
+            request, firebaseUid);
+        
+        DepartmentChiefDTOs.DepartmentChiefResponse response = 
+            departmentChiefService.getDepartmentChiefById(departmentChief.getId());
+        
+        return new ResponseEntity<>(ApiResponse.success("Department chief created successfully", response), 
+            HttpStatus.CREATED);
     }
     
     @GetMapping("/{id}")
@@ -86,8 +98,14 @@ public class DepartmentChiefController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DepartmentChiefDTOs.DepartmentChiefResponse>> updateDepartmentChief(
             @PathVariable UUID id,
-            @Valid @RequestBody DepartmentChiefDTOs.DepartmentChiefUpdateRequest request) {
+            @Valid @RequestBody DepartmentChiefDTOs.DepartmentChiefUpdateRequest request,
+            Authentication authentication) {
         log.info("Update department chief request received for ID: {}", id);
+        
+        // Check if user has permission to update
+        if (!hasDepartmentChiefOrAdminRole(authentication)) {
+            throw new AccessDeniedException("Only department chiefs or administrators can update department chiefs");
+        }
         
         DepartmentChiefDTOs.DepartmentChiefResponse response = 
                 departmentChiefService.updateDepartmentChief(id, request);
@@ -97,16 +115,26 @@ public class DepartmentChiefController {
     
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteDepartmentChief(
-            @PathVariable UUID id) {
+            @PathVariable UUID id,
+            Authentication authentication) {
         log.info("Delete department chief request received for ID: {}", id);
+        
+        // Check if user has permission to delete
+        if (!hasDepartmentChiefOrAdminRole(authentication)) {
+            throw new AccessDeniedException("Only department chiefs or administrators can delete department chiefs");
+        }
         
         departmentChiefService.deleteDepartmentChief(id);
         
         return ResponseEntity.ok(ApiResponse.success("Department chief deleted successfully"));
     }
     
-    private boolean hasAdminRole(Authentication authentication) {
+    private boolean hasDepartmentChiefOrAdminRole(Authentication authentication) {
         return authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(grantedAuthority -> {
+                    String authority = grantedAuthority.getAuthority();
+                    return authority.equals("ROLE_ADMIN") || 
+                           authority.equals("ROLE_" + UserRole.DEPARTMENT_CHIEF.name());
+                });
     }
 }
