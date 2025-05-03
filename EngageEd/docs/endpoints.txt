@@ -30,7 +30,6 @@ Material Endpoints
     PUT    /api/materials/{id}/file                      - Replace material file
     PUT    /api/materials/{id}/details                   - Update material details
     DELETE /api/materials/{id}                           - Delete material
-    Professor Endpoints
 
 
 Student Endpoints
