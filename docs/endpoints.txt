@@ -1,0 +1,69 @@
+EngageEd API Endpoints
+Here's a comprehensive list of all endpoints available in the EngageEd project:
+
+Authentication Endpoints:
+    POST /api/auth/register             - Register a new user
+    POST /api/auth/login                - Login with Firebase token
+    POST /api/auth/refresh-token        - Refresh authentication token
+    POST /api/auth/reset-password       - Request password reset
+    POST /api/auth/email-signin-link    - Generate email sign-in link
+
+Department Chief Endpoints
+    POST   /api/department-chiefs                        - Create department chief
+    GET    /api/department-chiefs/{id}                   - Get department chief by ID
+    GET    /api/department-chiefs                        - Get all department chiefs
+    GET    /api/department-chiefs/paged                  - Get paged department chiefs
+    PUT    /api/department-chiefs/{id}                   - Update department chief
+    DELETE /api/department-chiefs/{id}                   - Delete department chief
+
+File Endpoints
+    GET    /api/files/{filename}                         - Download a file
+
+Material Endpoints
+    POST   /api/materials                                - Upload material (with file)
+    GET    /api/materials/{id}                           - Get material by ID
+    GET    /api/materials/subject/{subjectId}            - Get materials by subject
+    GET    /api/materials/subject/{subjectId}/type/{type} - Get materials by subject and type
+    GET    /api/materials/search                         - Search materials in a subject
+    GET    /api/materials/subject/{subjectId}/paged      - Get paged materials by subject
+    PUT    /api/materials/{id}                           - Update material
+    PUT    /api/materials/{id}/file                      - Replace material file
+    PUT    /api/materials/{id}/details                   - Update material details
+    DELETE /api/materials/{id}                           - Delete material
+    Professor Endpoints
+
+
+Student Endpoints
+POST   /api/students/register                        - Register student
+GET    /api/students/{id}                            - Get student by ID
+GET    /api/students                                 - Get all students
+GET    /api/students/subject/{subjectId}             - Get students by subject
+GET    /api/students/paged                           - Get paged students
+GET    /api/students/all-subjects                    - Get all subjects for student
+PUT    /api/students/{id}                            - Update student
+DELETE /api/students/{id}                            - Delete student
+
+
+Professor Endpoints
+    POST   /api/professors/register                      - Register professor
+    GET    /api/professors/{id}                          - Get professor by ID
+    GET    /api/professors                               - Get all professors
+    GET    /api/professors/department-chief/{departmentChiefId} - Get professors by department chief
+    GET    /api/professors/paged                         - Get paged professors
+    PUT    /api/professors/{id}                          - Update professor
+    DELETE /api/professors/{id}                          - Delete professor
+
+Subject Endpoints
+    POST   /api/subjects                                 - Create subject
+    GET    /api/subjects/{id}                            - Get subject by ID
+    GET    /api/subjects/code/{code}                     - Get subject by code
+    GET    /api/subjects                                 - Get all subjects
+    GET    /api/subjects/active                          - Get active subjects
+    GET    /api/subjects/professor/{professorId}         - Get subjects by professor
+    GET    /api/subjects/search                          - Search subjects
+    GET    /api/subjects/paged                           - Get paged subjects
+    GET    /api/subjects/generate-code                   - Generate subject code
+    PUT    /api/subjects/{id}                            - Update subject
+    DELETE /api/subjects/{id}                            - Delete subject
+    POST   /api/subjects/{id}/materials                  - Add material to subject
+    GET    /api/subjects/{id}/materials                  - Get materials for subject
