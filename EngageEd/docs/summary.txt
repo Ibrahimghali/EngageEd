@@ -1,0 +1,128 @@
+EngageEd Platform Documentation
+Introduction
+EngageEd is a comprehensive educational platform designed to facilitate interaction between students, professors, and department chiefs. The platform provides tools for managing academic content, student enrollments, and departmental organization.
+
+System Architecture
+EngageEd is built on a modern Spring Boot backend with a RESTful API architecture. The system uses:
+
+Firebase Authentication: For secure user management and authentication
+Spring Security: For authorization and endpoint protection
+JPA/Hibernate: For database interactions and entity management
+RESTful API: For client-server communication
+User Roles
+The platform supports three primary user roles:
+
+Department Chiefs
+Department chiefs oversee professors and academic departments. They can:
+
+Create and manage professors
+View all professors in their department
+Manage departmental resources
+Professors
+Professors create and manage subjects and educational content. They can:
+
+Create and manage subjects
+Upload educational materials
+View enrolled students
+Students
+Students can access educational materials and interact with subjects. They can:
+
+Register for subjects
+Access and download materials
+View their enrolled subjects
+API Reference
+Authentication Endpoints
+Method	Endpoint	Description
+POST	/api/auth/register	Register a new user
+POST	/api/auth/login	Login with Firebase token
+POST	/api/auth/refresh-token	Refresh authentication token
+POST	/api/auth/reset-password	Request password reset
+POST	/api/auth/email-signin-link	Generate email sign-in link
+Department Chief Endpoints
+Method	Endpoint	Description
+POST	/api/department-chiefs	Create department chief
+GET	/api/department-chiefs/{id}	Get department chief by ID
+GET	/api/department-chiefs	Get all department chiefs
+GET	/api/department-chiefs/paged	Get paged department chiefs
+PUT	/api/department-chiefs/{id}	Update department chief
+DELETE	/api/department-chiefs/{id}	Delete department chief
+Professor Endpoints
+Method	Endpoint	Description
+POST	/api/professors/register	Register professor
+GET	/api/professors/{id}	Get professor by ID
+GET	/api/professors	Get all professors
+GET	/api/professors/department-chief/{departmentChiefId}	Get professors by department chief
+GET	/api/professors/paged	Get paged professors
+PUT	/api/professors/{id}	Update professor
+DELETE	/api/professors/{id}	Delete professor
+Student Endpoints
+Method	Endpoint	Description
+POST	/api/students/register	Register student
+GET	/api/students/{id}	Get student by ID
+GET	/api/students	Get all students
+GET	/api/students/subject/{subjectId}	Get students by subject
+GET	/api/students/paged	Get paged students
+GET	/api/students/all-subjects	Get all subjects for student
+PUT	/api/students/{id}	Update student
+DELETE	/api/students/{id}	Delete student
+Subject Endpoints
+Method	Endpoint	Description
+POST	/api/subjects	Create subject
+GET	/api/subjects/{id}	Get subject by ID
+GET	/api/subjects/code/{code}	Get subject by code
+GET	/api/subjects	Get all subjects
+GET	/api/subjects/active	Get active subjects
+GET	/api/subjects/professor/{professorId}	Get subjects by professor
+GET	/api/subjects/search	Search subjects
+GET	/api/subjects/paged	Get paged subjects
+GET	/api/subjects/generate-code	Generate subject code
+PUT	/api/subjects/{id}	Update subject
+DELETE	/api/subjects/{id}	Delete subject
+POST	/api/subjects/{id}/materials	Add material to subject
+GET	/api/subjects/{id}/materials	Get materials for subject
+Material Endpoints
+Method	Endpoint	Description
+POST	/api/materials	Upload material (with file)
+GET	/api/materials/{id}	Get material by ID
+GET	/api/materials/subject/{subjectId}	Get materials by subject
+GET	/api/materials/subject/{subjectId}/type/{type}	Get materials by subject and type
+GET	/api/materials/search	Search materials in a subject
+GET	/api/materials/subject/{subjectId}/paged	Get paged materials by subject
+PUT	/api/materials/{id}	Update material
+PUT	/api/materials/{id}/file	Replace material file
+PUT	/api/materials/{id}/details	Update material details
+DELETE	/api/materials/{id}	Delete material
+File Endpoints
+Method	Endpoint	Description
+GET	/api/files/{filename}	Download a file
+Authentication Flow
+Registration: New users register through /api/auth/register or role-specific registration endpoints
+Login: Users authenticate with Firebase tokens via /api/auth/login
+Token Refresh: Active sessions can refresh tokens using /api/auth/refresh-token
+Password Reset: Users can request password resets through /api/auth/reset-password
+Pagination Support
+Many collection endpoints support pagination:
+
+Use ?page=0&size=10 query parameters for default pagination
+Responses include pagination metadata (total items, total pages, etc.)
+Search Functionality
+The platform provides search capabilities:
+
+Search subjects: /api/subjects/search
+Search materials: /api/materials/search
+File Management
+The system supports file uploads and downloads:
+
+Upload materials with files: POST /api/materials
+Download files: GET /api/files/{filename}
+Update material files: PUT /api/materials/{id}/file
+Getting Started
+To interact with the EngageEd API:
+
+Register a user account (student, professor, or department chief)
+Authenticate using Firebase authentication
+Use the returned JWT token in the Authorization header for subsequent requests
+Security Considerations
+All API endpoints require authentication except for registration and login
+Different endpoints have different role-based access requirements
+JWT tokens should be kept secure and not shared
