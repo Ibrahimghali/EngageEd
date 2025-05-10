@@ -1,5 +1,3 @@
-
-```markdown
 # EngageEd
 
 ## Overview  
@@ -23,7 +21,6 @@ The application follows a typical Spring Boot project structure:
     ├── exception      # Custom exception handling
     └── utils          # Utility classes
 
----
 
 ## Key Features  
 - **User Role Hierarchy**: Supports three user roles (Students, Professors, Department Chiefs) with inheritance-based design  
@@ -34,7 +31,6 @@ The application follows a typical Spring Boot project structure:
 - **Search Functionality**: Full-text search across educational content  
 - **Pagination**: Efficient data retrieval using pagination  
 
----
 
 ## API Endpoints  
 - Authentication: `/api/auth/*`  
@@ -45,15 +41,14 @@ The application follows a typical Spring Boot project structure:
 - Subjects: `/api/subjects/*`  
 - Professors: `/api/professors/*`  
 
----
 
 ## Setup & Installation  
 
 1. **Clone the repository**  
    ```bash
-   git clone https://github.com/your-username/EngageEd.git
+   git clone https://github.com/Ibrahimghali/EngageEd.git
    cd EngageEd
-````
+
 
 2. **Configure application properties**
    Update the `src/main/resources/application.properties` file with your:
